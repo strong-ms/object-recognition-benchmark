@@ -144,6 +144,15 @@ ENV/
 env.bak/
 venv.bak/
 
+# Personal virtual environment
+pitstop_env/
+
+# Video output directory
+output/video
+
+# PyTorch model files
+*.pt
+
 # Spyder project settings
 .spyderproject
 .spyproject
