@@ -145,7 +145,7 @@ env.bak/
 venv.bak/
 
 # Personal virtual environment
-pitstop_env/
+orb_env/
 
 # Video output directory
 output/video

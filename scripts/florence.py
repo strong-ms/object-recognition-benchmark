@@ -91,7 +91,7 @@ def run_inference(input_video_path, output_json_path, output_csv_path, target_li
         json.dump(detections_data, f, indent=4)
 
 if __name__ == "__main__":
-    FILE_INPUT = r"input\trimmed_video.mp4"
+    FILE_INPUT = r"input\industrial.mp4"
     JSON_OUTPUT = r"output\bbox\detections.json"
     CSV_OUTPUT = r"output\metrics\metrics_florence.csv"
     

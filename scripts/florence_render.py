@@ -38,8 +38,8 @@ def render_video(input_video_path, input_json_path, output_video_path):
     print(f"Video ricostruito e salvato in: {output_video_path}")
 
 if __name__ == "__main__":
-    FILE_INPUT = r"input\trimmed_video.mp4"
+    FILE_INPUT = r"input\industrial.mp4"
     JSON_INPUT = r"output\bbox\detections.json"
-    VIDEO_OUTPUT = r"output\video\pitstop_florence_rendered.mp4"
+    VIDEO_OUTPUT = r"output\video\industrial_florence_rendered.mp4"
     
     render_video(FILE_INPUT, JSON_INPUT, VIDEO_OUTPUT)
