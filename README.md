@@ -1,6 +1,6 @@
 <div align="center">
-  <h1>🎯 Object Recognition Benchmark</h1>
-  <p>A comprehensive benchmarking pipeline for object detection and tracking across state-of-the-art AI models.</p>
+  <h1>Object Recognition Benchmark</h1>
+  <p>A comprehensive benchmarking pipeline for object/action detection and tracking across state-of-the-art AI models.</p>
 
 </div>
 
