@@ -3,29 +3,38 @@ import json
 import torch
 import time
 import csv
+import os
+from datetime import datetime
 from PIL import Image
 import re
 from transformers import AutoProcessor, AutoModelForCausalLM
 
-def run_inference(input_video_path, output_json_path, output_csv_path, target_list, model_id="microsoft/Florence-2-large"):
+def run_inference(input_video_path, output_json_path, output_dir, target_list, model_id="microsoft/Florence-2-large"):
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
     torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
 
+    print(f"Caricamento del modello {model_id}...")
     processor = AutoProcessor.from_pretrained(model_id, trust_remote_code=True)
     model = AutoModelForCausalLM.from_pretrained(model_id, torch_dtype=torch_dtype, trust_remote_code=True).to(device)
 
     cap = cv2.VideoCapture(input_video_path)
+    if not cap.isOpened():
+        print(f"Errore: Impossibile aprire il video {input_video_path}")
+        return
+
     total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-
     task_prompt = "<OPEN_VOCABULARY_DETECTION>"
-
     detections_data = {}
     
-    csv_file = open(output_csv_path, mode='w', newline='')
-    csv_writer = csv.writer(csv_file)
-    csv_writer.writerow(["Frame", "Tempo_Inferenza_ms"])
+    # Setup cartelle e file globali
+    os.makedirs(os.path.dirname(output_json_path), exist_ok=True)
+    os.makedirs(output_dir, exist_ok=True)
+    global_csv_path = os.path.join(output_dir, "metrics", "metrics.csv")
 
     frame_count = 0
+    total_inference_time = 0.0
+
+    print(f"Inizio elaborazione video per inferenza: {input_video_path}")
 
     while cap.isOpened():
         ret, frame = cap.read()
@@ -80,21 +89,48 @@ def run_inference(input_video_path, output_json_path, output_csv_path, target_li
                             "label": target  # Forziamo l'uso del nome esatto richiesto per pulizia visiva
                         })
         
+        # Accumulo del tempo
+        total_inference_time += frame_inference_time
         detections_data[frame_count] = frame_detections
-        csv_writer.writerow([frame_count, f"{frame_inference_time:.2f}"])
-        print(f"Elaborated {frame_count}/{total_frames} frames. Found {len(frame_detections)} objects.")
+        
+        if frame_count % 10 == 0:
+            print(f"Elaborated {frame_count}/{total_frames} frames...")
 
     cap.release()
-    csv_file.close()
 
+    # Salvataggio del file JSON con le coordinate
     with open(output_json_path, 'w') as f:
         json.dump(detections_data, f, indent=4)
+    print(f"Bbox salvate in: {output_json_path}")
+
+    # --- Calcolo metriche globali e scrittura nel CSV in append ---
+    avg_frame_process_time = total_inference_time / frame_count if frame_count > 0 else 0.0
+    current_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    video_basename = os.path.basename(input_video_path)
+    model_name_clean = model_id.split('/')[-1]  # Es. Estrae "Florence-2-large"
+
+    file_exists = os.path.isfile(global_csv_path)
+    
+    with open(global_csv_path, mode='a', newline='') as csv_file:
+        csv_writer = csv.writer(csv_file)
+        
+        if not file_exists:
+            csv_writer.writerow(["model_name", "input_video_name", "avg_frame_process_time", "average_confidence", "date"])
+        
+        csv_writer.writerow([
+            model_name_clean, 
+            video_basename, 
+            f"{avg_frame_process_time:.2f}", 
+            "N/A", 
+            current_date
+        ])
+    
+    print(f"Metriche accodate in: {global_csv_path}")
 
 if __name__ == "__main__":
-    FILE_INPUT = r"input\industrial.mp4"
+    FILE_INPUT = r"input\video\warehouse robot.mp4"
     JSON_OUTPUT = r"output\bbox\detections.json"
-    CSV_OUTPUT = r"output\metrics\metrics_florence.csv"
+    OUTPUT_DIRECTORY = r"output"
     
-    # Per l'Open Vocabulary nativo, gli oggetti vengono gestiti come una lista Python standard
-    TARGET_OBJECTS = ["Formula 1 car", "mechanic", "racing tire"]    
-    run_inference(FILE_INPUT, JSON_OUTPUT, CSV_OUTPUT, TARGET_OBJECTS)
+    TARGET_OBJECTS = ["wharehouse automated guided vehicle","box"]    
+    run_inference(FILE_INPUT, JSON_OUTPUT, OUTPUT_DIRECTORY, TARGET_OBJECTS)

@@ -1,5 +1,6 @@
 import cv2
 import json
+import os
 
 def render_video(input_video_path, input_json_path, output_video_path):
     with open(input_json_path, 'r') as f:
@@ -35,11 +36,13 @@ def render_video(input_video_path, input_json_path, output_video_path):
 
     cap.release()
     out.release()
-    print(f"Video ricostruito e salvato in: {output_video_path}")
+    print(f"Video saved in: {output_video_path}")
 
 if __name__ == "__main__":
-    FILE_INPUT = r"input\industrial.mp4"
+    FILE_INPUT = r"input\video\warehouse robot.mp4"
     JSON_INPUT = r"output\bbox\detections.json"
-    VIDEO_OUTPUT = r"output\video\industrial_florence_rendered.mp4"
+    
+    video_basename = os.path.basename(FILE_INPUT)
+    VIDEO_OUTPUT = os.path.join("output", "video", f"florence_{video_basename}")
     
     render_video(FILE_INPUT, JSON_INPUT, VIDEO_OUTPUT)

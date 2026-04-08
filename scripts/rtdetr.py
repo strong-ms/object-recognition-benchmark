@@ -1,11 +1,11 @@
 import cv2
-import datetime
 import os
 import torch
 import csv
+from datetime import datetime
 from ultralytics import RTDETR
 
-def test_rtdetr_video(input_video_path, output_dir, model_name="rtdetr-l.pt", conf_threshold=0.5):
+def test_rtdetr_video(input_video, output_dir, model_name="rtdetr-l.pt", conf_threshold=0.5):
     
     # Hardware check
     if torch.cuda.is_available():
@@ -21,9 +21,9 @@ def test_rtdetr_video(input_video_path, output_dir, model_name="rtdetr-l.pt", co
     model = RTDETR(model_name)
 
     # Opening the input video stream
-    cap = cv2.VideoCapture(input_video_path)
+    cap = cv2.VideoCapture(input_video)
     if not cap.isOpened():
-        print(f"Error: Unable to open video {input_video_path}")
+        print(f"Error: Unable to open video {input_video}")
         return
 
     # Extraction of video properties for writer configuration
@@ -32,30 +32,31 @@ def test_rtdetr_video(input_video_path, output_dir, model_name="rtdetr-l.pt", co
     fps = cap.get(cv2.CAP_PROP_FPS)
     total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
 
-    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     model_str = model_name.split('.')[0]
-    conf_str = str(conf_threshold).replace('.', '')
     
-    # Configuration of output paths (Video and CSV)
-    output_filename = f"{model_str}_conf{conf_str}_{timestamp}.mp4"
+    # Configuration of output paths
+    video_basename = os.path.basename(input_video)
+    
+    # Assicuriamoci che la cartella "video" esista
+    os.makedirs(os.path.join(output_dir, "video"), exist_ok=True)
+    output_filename = f"{model_str}_{video_basename}"
     output_video_path = os.path.join(output_dir, "video", output_filename)
     
-    csv_filename = f"metrics_{model_str}_conf{conf_str}_{timestamp}.csv"
-    csv_path = os.path.join(output_dir, "metrics", csv_filename)
+    # Il percorso del file CSV globale
+    os.makedirs(output_dir, exist_ok=True)
+    global_csv_path = os.path.join(output_dir, "metrics", "metrics.csv")
 
     # Configuration of the output video
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
     out = cv2.VideoWriter(output_video_path, fourcc, fps, (width, height))
 
-    # Initialization of the CSV file
-    csv_file = open(csv_path, mode='w', newline='')
-    csv_writer = csv.writer(csv_file)
-    csv_writer.writerow(["Frame", "Tempo_Inferenza_ms", "Confidenza_Media"])
-
-    print(f"Starting video processing: {input_video_path}")
+    print(f"Starting video processing: {input_video}")
     print(f"Resolution: {width}x{height} at {fps} FPS. Total frames: {total_frames}")
 
     frame_count = 0
+    total_inference_time = 0.0
+    total_conf_sum = 0.0
+    total_detections = 0
 
     while cap.isOpened():
         ret, frame = cap.read()
@@ -68,17 +69,14 @@ def test_rtdetr_video(input_video_path, output_dir, model_name="rtdetr-l.pt", co
         results = model(frame, stream=True, conf=conf_threshold, verbose=False, device=compute_device)
 
         for result in results:
-            # Calculation and saving of metrics
+            # Accumulo dei tempi di inferenza
             inference_time = result.speed['inference'] if hasattr(result, 'speed') and 'inference' in result.speed else 0.0
+            total_inference_time += inference_time
             
-            # Average confidence calculation
+            # Accumulo delle confidenze
             if result.boxes is not None and len(result.boxes.conf) > 0:
-                avg_conf = result.boxes.conf.mean().item()
-            else:
-                avg_conf = 0.0
-            
-            # Writing the row to the CSV file
-            csv_writer.writerow([frame_count, f"{inference_time:.2f}", f"{avg_conf:.4f}"])
+                total_conf_sum += result.boxes.conf.sum().item()
+                total_detections += len(result.boxes.conf)
 
             # result.plot() generates a new frame with the bounding boxes and labels superimposed
             annotated_frame = result.plot()
@@ -90,14 +88,38 @@ def test_rtdetr_video(input_video_path, output_dir, model_name="rtdetr-l.pt", co
     # Closing and releasing resources
     cap.release()
     out.release()
-    csv_file.close()
     cv2.destroyAllWindows()
     
+    # --- Calcolo delle metriche globali e salvataggio nel CSV ---
+    
+    avg_frame_process_time = total_inference_time / frame_count if frame_count > 0 else 0.0
+    # Media della confidenza su tutti gli oggetti rilevati nell'intero video
+    average_confidence = total_conf_sum / total_detections if total_detections > 0 else 0.0
+    current_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    
+    file_exists = os.path.isfile(global_csv_path)
+    
+    with open(global_csv_path, mode='a', newline='') as csv_file:
+        csv_writer = csv.writer(csv_file)
+        
+        # Se il file non esisteva prima, scrivo l'intestazione
+        if not file_exists:
+            csv_writer.writerow(["model_name", "input_video_name", "avg_frame_process_time", "average_confidence", "date"])
+        
+        # Scrivo la riga con le metriche calcolate
+        csv_writer.writerow([
+            model_name, 
+            video_basename, 
+            f"{avg_frame_process_time:.2f}", 
+            f"{average_confidence:.4f}", 
+            current_date
+        ])
+    
     print(f"Processing completed. Video saved in: {output_video_path}")
-    print(f"Metrics saved in: {csv_path}")
+    print(f"Metrics appended to: {global_csv_path}")
 
 if __name__ == "__main__":
-    FILE_INPUT = r"input\industrial.mp4"
+    FILE_INPUT = r"input\video\warehouse robot.mp4"
     OUTPUT_DIRECTORY = r"output"
     
     test_rtdetr_video(FILE_INPUT, OUTPUT_DIRECTORY, model_name="rtdetr-l.pt", conf_threshold=0.5)

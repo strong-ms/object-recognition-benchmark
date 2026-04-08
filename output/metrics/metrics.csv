@@ -1,0 +1,25 @@
+model_name,input_video_name,avg_frame_process_time,average_confidence,date
+yolov8m-world.pt,industrial.mp4,21.96,0.5885,2026-04-07 15:21:51
+yolov8m-world.pt,ILSVRC2015_train_00053011.mp4,32.18,0.7209,2026-04-07 15:26:03
+rtdetr-l.pt,industrial.mp4,42.01,0.6775,2026-04-07 15:27:06
+yolov8m-world.pt,industrial robot harm.mp4,32.25,0.6531,2026-04-07 15:31:02
+Florence-2-large,industrial.mp4,1153.34,N/A,2026-04-07 15:42:46
+yolov8m-world.pt,industrial_robot_arm.mp4,21.80,0.6498,2026-04-07 15:53:56
+yolov8m-world.pt,"There are seven deadly sins, Captain.mp4",20.72,0.7177,2026-04-07 15:57:49
+yolov8m-world.pt,warehouse robot.mp4,19.34,0.4933,2026-04-07 15:59:31
+rtdetr-l.pt,ILSVRC2015_train_00053011.mp4,48.86,0.8137,2026-04-07 16:01:55
+rtdetr-l.pt,industrial_robot_arm.mp4,48.69,0.7332,2026-04-07 16:05:44
+rtdetr-l.pt,"There are seven deadly sins, Captain.mp4",51.28,0.7877,2026-04-07 16:09:29
+rtdetr-l.pt,warehouse robot.mp4,67.04,0.6201,2026-04-07 16:11:07
+Florence-2-large,ILSVRC2015_train_00053011.mp4,696.24,N/A,2026-04-07 16:19:19
+Florence-2-large,industrial_robot_arm.mp4,1027.51,N/A,2026-04-07 17:11:25
+Florence-2-large,ILSVRC2015_train_00053011.mp4,1524.88,N/A,2026-04-08 10:16:22
+Florence-2-large,"There are seven deadly sins, Captain.mp4",1921.65,N/A,2026-04-08 11:17:56
+Florence-2-large,ILSVRC2015_train_00053011.mp4,2240.71,N/A,2026-04-08 15:06:51
+Florence-2-large,ILSVRC2015_train_00053011.mp4,1642.53,N/A,2026-04-08 15:22:24
+Florence-2-large,warehouse robot.mp4,1191.64,N/A,2026-04-08 15:43:07
+yolov8m-world.pt,warehouse robot.mp4,12.76,0.4256,2026-04-08 18:38:18
+yolov8m-world.pt,warehouse robot.mp4,12.52,0.4256,2026-04-08 18:45:11
+yolov8m-world.pt,industrial.mp4,14.25,0.6133,2026-04-08 18:46:51
+yolov8m-world.pt,industrial_robot_arm.mp4,15.60,0.6600,2026-04-08 18:49:55
+yolov8m-world.pt,industrial_robot_arm.mp4,15.74,0.6578,2026-04-08 18:54:49

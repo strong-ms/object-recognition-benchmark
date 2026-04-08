@@ -149,6 +149,7 @@ orb_env/
 
 # Video output directory
 output/video
+input/video
 
 # PyTorch model files
 *.pt
