@@ -26,11 +26,11 @@ Currently evaluated models:
 │   ├── bbox/               # Detection coordinates (e.g., detections.json)
 │   ├── metrics/            # Frame-by-frame metric logs (.csv format)
 │   └── video/              # Rendered videos overlaying predictions
-├── scripts/                # Execution and inference scripts
-│   ├── rtdetr.py           # RT-DETR inference & metrics logging
-│   ├── yolo.py             # YOLO inference & metrics logging
-│   ├── florence.py         # Florence-2 inference (phrase grounding to JSON)
-│   └── florence_render.py  # Offline video rendering from Florence outputs
+├── models/                 # Execution and inference scripts
+│   ├── rtdetr/             # RT-DETR inference & metrics logging
+│   ├── yolo/               # YOLO inference & metrics logging
+│   ├── florence/           # Florence-2 inference (phrase grounding to JSON)
+│   └── yowo/               # YOWO repository
 ├── requirements.txt        # Python dependencies
 └── README.md               # This documentation file
 ```
@@ -78,13 +78,13 @@ pip install -r requirements.txt
 ### YOLO Models Evaluation
 
 ```bash
-python scripts/yolo.py
+python models/yolo/yolo.py
 ```
 
 ### RT-DETR Evaluation
 
 ```bash
-python scripts/rtdetr.py
+python models/rtdetr/rtdetr.py
 ```
 
 ### Florence-2 Evaluation Pipeline
@@ -92,13 +92,20 @@ python scripts/rtdetr.py
 **1. Inference & Metrics (Logic Step):**
 
 ```bash
-python scripts/florence.py
+python models/florence2/florence.py
 ```
 
 **2. Offline Rendering (Video Construction Step):**
 
 ```bash
-python scripts/florence_render.py
+python models/florence2/florence_render.py
+```
+
+### YOWO Evaluation
+
+```bash
+cd models/yowo
+python test_video_ava.py --cfg cfg/ava.yaml
 ```
 
 ---
