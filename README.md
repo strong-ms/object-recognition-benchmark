@@ -14,18 +14,17 @@ Currently evaluated models:
 - YOLO
 - RT-DETR
 - Florence-2-large (Microsoft)
+- YOWO
 
 ---
 
 ## Repository Structure
 
 ```text
-.
-├── input/                  # Raw source video files to be processed
+.              
 ├── output/                 # Generated outputs
 │   ├── bbox/               # Detection coordinates (e.g., detections.json)
-│   ├── metrics/            # Frame-by-frame metric logs (.csv format)
-│   └── video/              # Rendered videos overlaying predictions
+│   └── metrics/            # Frame-by-frame metric logs (.csv format)
 ├── models/                 # Execution and inference scripts
 │   ├── rtdetr/             # RT-DETR inference & metrics logging
 │   ├── yolo/               # YOLO inference & metrics logging
