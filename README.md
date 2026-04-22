@@ -16,6 +16,12 @@ Currently evaluated models:
 - Florence-2-large (Microsoft)
 - YOWO
 
+Soon to be tested:
+- Yowov2: https://arxiv.org/abs/2302.06848
+- Yowov3: https://arxiv.org/abs/2408.02623
+- YowoPlus: https://arxiv.org/abs/2210.11219
+- YowoMore: https://www.researchgate.net/publication/372412243_You_Watch_Once_More_A_More_Effective_CNN_Architecture_for_Video_Spatio-Temporal_Action_Localization
+
 ---
 
 ## Repository Structure
